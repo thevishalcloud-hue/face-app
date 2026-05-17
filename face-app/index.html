@@ -1,0 +1,2023 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#0a0f1e">
+    <meta name="apple-mobile-web-app-title" content="表情驱动虚拟形象">
+    <title>✨ 表情驱动虚拟形象 | 手机版</title>
+    <link rel="manifest" href="manifest.json">
+    <style>
+        :root {
+            --bg: #0a0f1e;
+            --card-bg: rgba(15, 23, 42, 0.6);
+            --accent: #00ff88;
+            --accent2: #00b8ff;
+            --danger: #ff6666;
+            --warn: #ffaa00;
+            --text: #e2e8f0;
+            --text2: #94a3b8;
+            --text3: #64748b;
+            --border: rgba(0, 255, 136, 0.15);
+            --radius: 20px;
+            --radius-sm: 12px;
+            --blur: blur(12px);
+            --touch-target: 44px;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+        html {
+            touch-action: manipulation;
+            -webkit-overflow-scrolling: touch;
+        }
+        body {
+            font-family: 'Segoe UI', 'Poppins', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #0a0f1e 0%, #0f172a 100%);
+            min-height: 100vh;
+            min-height: -webkit-fill-available;
+            overflow-x: hidden;
+            color: var(--text);
+            padding-bottom: env(safe-area-inset-bottom, 16px);
+            padding-top: env(safe-area-inset-top, 0px);
+        }
+        .bg-decoration {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .bg-decoration::before {
+            content: '';
+            position: absolute;
+            top: 10%;
+            left: -30%;
+            width: 100%;
+            height: 70%;
+            background: radial-gradient(circle, rgba(0, 255, 136, 0.05) 0, transparent 70%);
+            border-radius: 50%;
+        }
+        .bg-decoration::after {
+            content: '';
+            position: absolute;
+            bottom: 10%;
+            right: -30%;
+            width: 100%;
+            height: 70%;
+            background: radial-gradient(circle, rgba(0, 140, 255, 0.05) 0, transparent 70%);
+            border-radius: 50%;
+        }
+        .main-container {
+            position: relative;
+            z-index: 1;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 8px 10px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .header {
+            text-align: center;
+            padding: 6px 0 2px;
+        }
+        .header h1 {
+            font-size: 1.25rem;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font-weight: 700;
+            line-height: 1.3;
+        }
+        .header .subtitle {
+            color: var(--text2);
+            font-size: 0.65rem;
+            margin-top: 1px;
+            line-height: 1.4;
+        }
+        .badge {
+            display: inline-block;
+            background: rgba(0, 255, 136, 0.12);
+            border: 1px solid rgba(0, 255, 136, 0.25);
+            border-radius: 50px;
+            padding: 4px 10px;
+            font-size: 0.6rem;
+            color: var(--accent);
+            margin-top: 4px;
+            letter-spacing: 0.3px;
+            line-height: 1.4;
+        }
+
+        .dashboard {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .card {
+            flex: 1;
+            min-width: 280px;
+            max-width: 100%;
+            background: var(--card-bg);
+            backdrop-filter: var(--blur);
+            -webkit-backdrop-filter: var(--blur);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            overflow: hidden;
+            transition: border-color 0.3s;
+            position: relative;
+        }
+        .card:active {
+            border-color: rgba(0, 255, 136, 0.35);
+        }
+        .card-header {
+            padding: 10px 14px;
+            background: rgba(0, 0, 0, 0.25);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .card-header h3 {
+            color: var(--text);
+            font-size: 0.78rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.62rem;
+            padding: 4px 10px;
+            border-radius: 20px;
+            background: rgba(0, 0, 0, 0.4);
+            color: var(--text2);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            white-space: nowrap;
+        }
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background-color: #ff4444;
+            transition: background-color 0.3s, box-shadow 0.3s;
+            flex-shrink: 0;
+        }
+        .status-dot.active {
+            background-color: var(--accent);
+            box-shadow: 0 0 8px var(--accent);
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0%,
+            100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.4;
+            }
+        }
+        video,
+        #threeCanvas {
+            width: 100%;
+            aspect-ratio: 1/1;
+            display: block;
+            background: #0a0f1e;
+            object-fit: cover;
+        }
+        video {
+            transform: scaleX(-1);
+        }
+        #threeCanvas {
+            touch-action: none;
+        }
+        #labelContainer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .control-bar {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: var(--blur);
+            -webkit-backdrop-filter: var(--blur);
+            border-radius: 40px;
+            border: 1px solid var(--border);
+            padding: 8px 12px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn {
+            padding: 10px 16px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.75rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.15s;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            white-space: nowrap;
+            letter-spacing: 0.3px;
+            min-height: var(--touch-target);
+            justify-content: center;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+        .btn:active {
+            transform: scale(0.95);
+            opacity: 0.85;
+        }
+        .btn-toggle {
+            background: linear-gradient(135deg, #00ff88, #00cc6a);
+            color: #0a0f1e;
+            box-shadow: 0 3px 14px rgba(0, 255, 136, 0.3);
+            min-width: 110px;
+            font-size: 0.82rem;
+            font-weight: 700;
+        }
+        .btn-toggle.running {
+            background: linear-gradient(135deg, #ff5555, #cc3333);
+            color: #fff;
+            box-shadow: 0 3px 14px rgba(255, 68, 68, 0.35);
+        }
+        .btn-accent {
+            background: linear-gradient(135deg, #ffaa00, #ff8800);
+            color: #0a0f1e;
+            box-shadow: 0 3px 12px rgba(255, 170, 0, 0.25);
+            font-size: 0.7rem;
+            padding: 8px 14px;
+            min-height: 38px;
+        }
+        .btn-outline {
+            background: transparent;
+            border: 1px solid rgba(0, 255, 136, 0.35);
+            color: var(--accent);
+            font-size: 0.68rem;
+            padding: 7px 12px;
+            min-height: 38px;
+        }
+        .btn-outline:active {
+            background: rgba(0, 255, 136, 0.1);
+            border-color: var(--accent);
+        }
+        .btn-ghost {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text2);
+            font-size: 0.66rem;
+            padding: 7px 11px;
+            min-height: 38px;
+        }
+        .btn-ghost:active {
+            border-color: rgba(255, 255, 255, 0.25);
+            color: #fff;
+        }
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 0 8px;
+            border-left: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .control-label {
+            color: var(--text2);
+            font-size: 0.68rem;
+            white-space: nowrap;
+        }
+        input[type="range"] {
+            width: 70px;
+            height: 4px;
+            -webkit-appearance: none;
+            background: rgba(0, 255, 136, 0.18);
+            border-radius: 2px;
+            cursor: pointer;
+            touch-action: manipulation;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 22px;
+            height: 22px;
+            background: var(--accent);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--accent);
+            cursor: pointer;
+        }
+        .intensity-value {
+            background: rgba(0, 255, 136, 0.12);
+            padding: 3px 8px;
+            border-radius: 20px;
+            font-size: 0.65rem;
+            color: var(--accent);
+            font-weight: 600;
+            min-width: 40px;
+            text-align: center;
+        }
+        select.custom-select {
+            appearance: none;
+            -webkit-appearance: none;
+            background: rgba(0, 0, 0, 0.35);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 30px;
+            padding: 9px 28px 9px 12px;
+            color: var(--accent);
+            font-size: 0.7rem;
+            font-weight: 600;
+            cursor: pointer;
+            outline: none;
+            font-family: inherit;
+            min-height: 38px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2300ff88' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'%3E%3C/path%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 8px center;
+            transition: border-color 0.2s;
+            max-width: 150px;
+        }
+        select.custom-select:active {
+            border-color: var(--accent);
+        }
+        select.custom-select option {
+            background: #0f172a;
+            color: var(--text);
+            padding: 8px;
+        }
+        .divider-dot {
+            width: 3px;
+            height: 3px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            margin: 0 1px;
+            flex-shrink: 0;
+        }
+
+        .panel-collapsible {
+            background: rgba(15, 23, 42, 0.55);
+            backdrop-filter: var(--blur);
+            -webkit-backdrop-filter: var(--blur);
+            border-radius: var(--radius);
+            border: 1px solid rgba(0, 180, 255, 0.2);
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+        .panel-collapsible .panel-header {
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            min-height: var(--touch-target);
+            transition: background 0.2s;
+            touch-action: manipulation;
+        }
+        .panel-collapsible .panel-header:active {
+            background: rgba(255, 255, 255, 0.03);
+        }
+        .panel-title {
+            color: var(--text2);
+            font-size: 0.68rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .panel-arrow {
+            font-size: 0.7rem;
+            color: var(--text2);
+            transition: transform 0.3s;
+            display: inline-block;
+        }
+        .panel-collapsible.open .panel-arrow {
+            transform: rotate(180deg);
+        }
+        .panel-body {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease, padding 0.3s;
+            padding: 0 14px;
+        }
+        .panel-collapsible.open .panel-body {
+            max-height: 600px;
+            padding: 0 14px 12px;
+        }
+        .custom-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 8px;
+        }
+        .custom-item {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: var(--radius-sm);
+            padding: 9px 11px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+        }
+        .custom-item-label {
+            color: var(--text2);
+            font-size: 0.63rem;
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 2px;
+        }
+        .custom-item-label span.val {
+            color: var(--accent2);
+            font-weight: 600;
+            font-size: 0.63rem;
+        }
+        .custom-item input {
+            width: 100%;
+            margin-top: 2px;
+        }
+
+        .stats-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 8px;
+        }
+        .stat-card {
+            background: rgba(15, 23, 42, 0.45);
+            backdrop-filter: blur(6px);
+            border-radius: 16px;
+            padding: 10px 13px;
+            border: 1px solid rgba(0, 255, 136, 0.08);
+        }
+        .stat-label {
+            color: var(--text3);
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+        .stat-value {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--accent);
+            display: flex;
+            align-items: baseline;
+            gap: 3px;
+        }
+        .stat-unit {
+            font-size: 0.58rem;
+            color: var(--text3);
+        }
+        .stat-bar {
+            margin-top: 7px;
+            height: 2px;
+            background: rgba(0, 255, 136, 0.12);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        .stat-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--accent2));
+            border-radius: 2px;
+            transition: width 0.15s;
+            width: 0%;
+        }
+
+        .main-expression-card {
+            background: rgba(0, 255, 136, 0.06);
+            border: 1px solid rgba(0, 255, 136, 0.22);
+            border-radius: 16px;
+            padding: 8px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .main-expression-label {
+            font-size: 0.63rem;
+            color: var(--text2);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .main-expression-value {
+            font-size: 0.95rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 4px 11px;
+            border-radius: 40px;
+        }
+        .main-expression-icon {
+            font-size: 1.3rem;
+        }
+        .main-expression-text {
+            color: var(--accent);
+            font-size: 0.78rem;
+        }
+
+        .emotion-recognition-panel {
+            background: rgba(15, 23, 42, 0.55);
+            backdrop-filter: var(--blur);
+            -webkit-backdrop-filter: var(--blur);
+            border-radius: var(--radius);
+            padding: 14px 16px;
+            border: 1px solid rgba(255, 170, 0, 0.18);
+        }
+        .emotions-title {
+            color: var(--text2);
+            font-size: 0.63rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 10px;
+        }
+        .emotion-main-display {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+        .emotion-main-icon {
+            font-size: 2.5rem;
+            filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.2));
+        }
+        .emotion-main-info {
+            flex: 1;
+        }
+        .emotion-main-label {
+            color: var(--text2);
+            font-size: 0.58rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+        .emotion-main-name {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+        .emotion-main-confidence {
+            font-size: 0.68rem;
+            color: var(--text2);
+        }
+        .emotion-bars-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 7px;
+        }
+        .emotion-bar-item {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            padding: 7px 9px;
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.18);
+        }
+        .emotion-bar-icon {
+            font-size: 1.1rem;
+            width: 26px;
+            text-align: center;
+        }
+        .emotion-bar-info {
+            flex: 1;
+            min-width: 0;
+        }
+        .emotion-bar-name {
+            color: #cbd5e1;
+            font-size: 0.63rem;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+        .emotion-bar-track {
+            height: 4px;
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .emotion-bar-fill {
+            height: 100%;
+            border-radius: 3px;
+            width: 0%;
+            transition: width 0.15s;
+        }
+        .joy-fill {
+            background: linear-gradient(90deg, #00cc66, #00ff88);
+        }
+        .anger-fill {
+            background: linear-gradient(90deg, #cc3333, #ff4444);
+        }
+        .sadness-fill {
+            background: linear-gradient(90deg, #3366cc, #4488ff);
+        }
+        .happy-fill {
+            background: linear-gradient(90deg, #cc8800, #ffaa00);
+        }
+        .emotion-bar-score {
+            font-size: 0.6rem;
+            font-weight: 700;
+            color: var(--text2);
+            min-width: 26px;
+            text-align: right;
+        }
+
+        .emotions-indicator {
+            background: rgba(15, 23, 42, 0.4);
+            backdrop-filter: blur(6px);
+            border-radius: 16px;
+            padding: 12px 14px;
+            border: 1px solid rgba(0, 255, 136, 0.07);
+        }
+        .emotions-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: space-around;
+        }
+        .emotion-item {
+            flex: 1;
+            text-align: center;
+            min-width: 50px;
+        }
+        .emotion-icon {
+            font-size: 1.3rem;
+            margin-bottom: 3px;
+        }
+        .emotion-name {
+            color: var(--text2);
+            font-size: 0.58rem;
+            margin-bottom: 3px;
+        }
+        .emotion-value {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--accent);
+        }
+        .emotion-bar-small {
+            height: 2px;
+            background: rgba(0, 255, 136, 0.12);
+            border-radius: 2px;
+            margin-top: 3px;
+            overflow: hidden;
+        }
+        .emotion-bar-small-fill {
+            height: 100%;
+            background: var(--accent);
+            border-radius: 2px;
+            transition: width 0.1s;
+        }
+
+        .debug-panel {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 10px;
+            padding: 8px 12px;
+            font-family: monospace;
+            font-size: 9px;
+            color: #777;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            line-height: 1.5;
+        }
+        .footer {
+            text-align: center;
+            padding: 12px;
+            color: #475569;
+            font-size: 0.58rem;
+            letter-spacing: 0.5px;
+        }
+        .btn-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* 移动端专用优化 */
+        @media (max-width: 600px) {
+            .main-container {
+                padding: 6px 6px;
+                gap: 8px;
+            }
+            .card {
+                min-width: 0;
+                flex: 1 1 100%;
+                max-width: 100%;
+                border-radius: 16px;
+            }
+            .card-header {
+                padding: 8px 10px;
+            }
+            .card-header h3 {
+                font-size: 0.7rem;
+            }
+            .status-badge {
+                font-size: 0.58rem;
+                padding: 3px 8px;
+            }
+            video,
+            #threeCanvas {
+                aspect-ratio: 1/1;
+            }
+            .btn {
+                padding: 9px 13px;
+                font-size: 0.7rem;
+                gap: 4px;
+                min-height: 40px;
+            }
+            .btn-toggle {
+                min-width: 100px;
+                font-size: 0.76rem;
+                min-height: 44px;
+            }
+            .btn-accent {
+                font-size: 0.66rem;
+                padding: 7px 11px;
+                min-height: 36px;
+            }
+            .btn-ghost {
+                font-size: 0.62rem;
+                padding: 6px 10px;
+                min-height: 36px;
+            }
+            .btn-outline {
+                font-size: 0.64rem;
+                padding: 6px 10px;
+                min-height: 36px;
+            }
+            .control-bar {
+                border-radius: 28px;
+                padding: 6px 8px;
+                gap: 5px;
+            }
+            .control-group {
+                padding: 0 4px;
+                gap: 4px;
+                border-left: none;
+            }
+            .control-label {
+                font-size: 0.6rem;
+            }
+            input[type="range"] {
+                width: 55px;
+            }
+            .intensity-value {
+                font-size: 0.6rem;
+                padding: 2px 6px;
+                min-width: 34px;
+            }
+            select.custom-select {
+                font-size: 0.64rem;
+                padding: 7px 24px 7px 10px;
+                max-width: 130px;
+                min-height: 36px;
+            }
+            .custom-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 6px;
+            }
+            .custom-item {
+                padding: 7px 9px;
+            }
+            .custom-item-label {
+                font-size: 0.58rem;
+            }
+            .custom-item-label span.val {
+                font-size: 0.58rem;
+            }
+            .panel-body {
+                padding: 0 10px;
+            }
+            .panel-collapsible.open .panel-body {
+                padding: 0 10px 10px;
+            }
+            .panel-header {
+                padding: 10px 12px;
+            }
+            .panel-title {
+                font-size: 0.63rem;
+            }
+            .emotion-bars-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 5px;
+            }
+            .emotion-bar-item {
+                padding: 6px 7px;
+                gap: 5px;
+            }
+            .emotion-bar-icon {
+                font-size: 1rem;
+                width: 22px;
+            }
+            .emotion-main-icon {
+                font-size: 2rem;
+            }
+            .emotion-main-name {
+                font-size: 1.1rem;
+            }
+            .stats-panel {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 6px;
+            }
+            .stat-card {
+                padding: 8px 10px;
+                border-radius: 12px;
+            }
+            .stat-value {
+                font-size: 0.9rem;
+            }
+            .stat-label {
+                font-size: 0.55rem;
+            }
+            .header h1 {
+                font-size: 1.1rem;
+            }
+            .header .subtitle {
+                font-size: 0.58rem;
+            }
+            .badge {
+                font-size: 0.55rem;
+                padding: 3px 8px;
+            }
+            .divider-dot {
+                display: none;
+            }
+        }
+        @media (max-width: 380px) {
+            .custom-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 5px;
+            }
+            .control-bar {
+                gap: 4px;
+                padding: 5px 6px;
+                border-radius: 24px;
+            }
+            .btn {
+                padding: 7px 10px;
+                font-size: 0.65rem;
+                min-height: 36px;
+            }
+            .btn-toggle {
+                min-width: 85px;
+                font-size: 0.7rem;
+                min-height: 40px;
+            }
+            select.custom-select {
+                max-width: 110px;
+                font-size: 0.6rem;
+                padding: 6px 20px 6px 8px;
+            }
+            input[type="range"] {
+                width: 45px;
+            }
+            .control-label {
+                font-size: 0.55rem;
+            }
+            .emotion-bars-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .stats-panel {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 4px;
+            }
+            .stat-card {
+                padding: 6px 8px;
+            }
+            .stat-value {
+                font-size: 0.78rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-decoration"></div>
+    <div class="main-container">
+        <!-- 头部 -->
+        <div class="header">
+            <h1>✨ 表情驱动虚拟形象</h1>
+            <div class="subtitle">原型 · 雪怪 · 博尔特 · 戴夫 · 大圣 · 水兵月 · 汽车人 · 侦探 · 基德</div>
+            <div class="badge">📱 手机版 · 自然圆润 · 明显眼黑 · 喜怒哀乐</div>
+        </div>
+
+        <!-- 视频与3D面板 -->
+        <div class="dashboard">
+            <div class="card" id="videoCard">
+                <div class="card-header">
+                    <h3>📷 表情采集</h3>
+                    <span class="status-badge"><span class="status-dot" id="cameraStatus"></span><span id="cameraStatusText">未启动</span></span>
+                </div>
+                <video id="video" autoplay playsinline webkit-playsinline></video>
+            </div>
+            <div class="card" id="avatarCard">
+                <div class="card-header">
+                    <h3>🎭 虚拟形象</h3>
+                    <span class="status-badge"><span class="status-dot" id="avatarStatus"></span><span id="avatarStatusText">等待中</span></span>
+                </div>
+                <div style="position:relative;">
+                    <canvas id="threeCanvas"></canvas>
+                    <div id="labelContainer"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 集成控制栏 -->
+        <div class="control-bar" id="mainControlBar">
+            <button id="toggleBtn" class="btn btn-toggle" title="启动/停止系统">▶ 启动</button>
+            <span class="divider-dot"></span>
+            <div class="control-group">
+                <span class="control-label">😊表情</span>
+                <input type="range" id="intensity" min="0" max="1.8" step="0.01" value="1.0">
+                <span class="intensity-value" id="intensityVal">1.0x</span>
+            </div>
+            <div class="control-group">
+                <span class="control-label">🔄头部</span>
+                <input type="range" id="headStrength" min="0.5" max="2.2" step="0.01" value="1.6">
+                <span class="intensity-value" id="headStrVal">1.6x</span>
+            </div>
+            <span class="divider-dot"></span>
+            <div class="btn-row">
+                <select class="custom-select" id="presetSelect" title="选择预设风格">
+                    <option value="prototype">🧑 虚拟原型</option>
+                    <option value="yeti">❄️ 雪怪</option>
+                    <option value="bolt">⚡ 博尔特</option>
+                    <option value="dave">🧢 戴夫</option>
+                    <option value="wukong">🐵 大圣</option>
+                    <option value="sailormoon">🌙 水兵月</option>
+                    <option value="autobot">🚛 汽车人</option>
+                    <option value="detective">🕵️ 侦探</option>
+                    <option value="kaitou">🎩 基德</option>
+                </select>
+                <button class="btn btn-accent" id="randomAvatarBtn" title="随机风格">🎲</button>
+                <button class="btn btn-ghost" id="recalibrateBtn" title="重新校准">🔄校准</button>
+                <button class="btn btn-ghost" id="resetDefaultBtn" title="恢复默认">↺默认</button>
+            </div>
+        </div>
+
+        <!-- 五官微调（可折叠） -->
+        <div class="panel-collapsible open" id="tweakPanel">
+            <div class="panel-header" id="tweakPanelHeader">
+                <span class="panel-title">🔧 五官微调</span>
+                <span class="panel-arrow">▼</span>
+            </div>
+            <div class="panel-body">
+                <div class="custom-grid">
+                    <div class="custom-item"><div class="custom-item-label">👁 眼睛大小 <span class="val" id="eyeSizeVal">1.00</span></div><input type="range" id="eyeSize" min="0.4" max="2.2" step="0.01" value="1.0"></div>
+                    <div class="custom-item"><div class="custom-item-label">↔ 眼距 <span class="val" id="eyeSpacingVal">1.00</span></div><input type="range" id="eyeSpacing" min="0.6" max="1.8" step="0.01" value="1.0"></div>
+                    <div class="custom-item"><div class="custom-item-label">👄 嘴巴宽度 <span class="val" id="mouthWidthVal">1.00</span></div><input type="range" id="mouthWidth" min="0.5" max="2.0" step="0.01" value="1.0"></div>
+                    <div class="custom-item"><div class="custom-item-label">📐 嘴巴厚度 <span class="val" id="mouthHeightVal">1.00</span></div><input type="range" id="mouthHeight" min="0.4" max="2.0" step="0.01" value="1.0"></div>
+                    <div class="custom-item"><div class="custom-item-label">✏ 眉毛粗细 <span class="val" id="browThicknessVal">1.00</span></div><input type="range" id="browThickness" min="0.3" max="2.5" step="0.01" value="1.0"></div>
+                    <div class="custom-item"><div class="custom-item-label">📏 脸型宽度 <span class="val" id="faceWidthVal">1.00</span></div><input type="range" id="faceWidth" min="0.7" max="1.5" step="0.01" value="1.0"></div>
+                    <div class="custom-item"><div class="custom-item-label">📐 脸型高度 <span class="val" id="faceHeightVal">1.00</span></div><input type="range" id="faceHeight" min="0.75" max="1.4" step="0.01" value="1.0"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 统计面板 -->
+        <div class="stats-panel">
+            <div class="stat-card"><div class="stat-label">实时延迟</div><div class="stat-value"><span id="latency">0</span><span class="stat-unit">ms</span></div><div class="stat-bar"><div class="stat-bar-fill" id="latencyBar"></div></div></div>
+            <div class="stat-card"><div class="stat-label">🎯 当前情绪</div><div class="stat-value" id="mainEmotionDisplay">😐 中性</div><div class="stat-bar"><div class="stat-bar-fill" id="mainEmotionBarFill"></div></div></div>
+            <div class="stat-card"><div class="stat-label">检测状态</div><div class="stat-value" id="detectStatus">🔍 等待</div><div class="stat-bar"><div class="stat-bar-fill" id="detectBar"></div></div></div>
+        </div>
+
+        <!-- 主要表情卡片 -->
+        <div class="main-expression-card">
+            <span class="main-expression-label">🎭 当前主要表情</span>
+            <div class="main-expression-value"><span class="main-expression-icon" id="mainExpressionIcon">😐</span><span class="main-expression-text" id="mainExpressionText">无显著表情</span></div>
+        </div>
+
+        <!-- 情绪识别面板 -->
+        <div class="emotion-recognition-panel" id="emotionRecognitionPanel">
+            <div class="emotions-title">🧠 喜怒哀乐 · 情绪识别</div>
+            <div class="emotion-main-display"><span class="emotion-main-icon" id="emotionMainIcon">😐</span><div class="emotion-main-info"><div class="emotion-main-label">主导情绪</div><div class="emotion-main-name" id="emotionMainName">中性</div><div class="emotion-main-confidence" id="emotionMainConfidence">等待校准...</div></div></div>
+            <div class="emotion-bars-grid">
+                <div class="emotion-bar-item"><span class="emotion-bar-icon">😊</span><div class="emotion-bar-info"><div class="emotion-bar-name">喜</div><div class="emotion-bar-track"><div class="emotion-bar-fill joy-fill" id="joyBarFill"></div></div></div><span class="emotion-bar-score" id="joyScore">0%</span></div>
+                <div class="emotion-bar-item"><span class="emotion-bar-icon">😠</span><div class="emotion-bar-info"><div class="emotion-bar-name">怒</div><div class="emotion-bar-track"><div class="emotion-bar-fill anger-fill" id="angerBarFill"></div></div></div><span class="emotion-bar-score" id="angerScore">0%</span></div>
+                <div class="emotion-bar-item"><span class="emotion-bar-icon">😢</span><div class="emotion-bar-info"><div class="emotion-bar-name">哀</div><div class="emotion-bar-track"><div class="emotion-bar-fill sadness-fill" id="sadnessBarFill"></div></div></div><span class="emotion-bar-score" id="sadnessScore">0%</span></div>
+                <div class="emotion-bar-item"><span class="emotion-bar-icon">😄</span><div class="emotion-bar-info"><div class="emotion-bar-name">乐</div><div class="emotion-bar-track"><div class="emotion-bar-fill happy-fill" id="happyBarFill"></div></div></div><span class="emotion-bar-score" id="happyScore">0%</span></div>
+            </div>
+        </div>
+
+        <!-- 基础表情单元 -->
+        <div class="emotions-indicator">
+            <div class="emotions-title">🔬 基础表情单元</div>
+            <div class="emotions-grid">
+                <div class="emotion-item"><div class="emotion-icon">😊</div><div class="emotion-name">微笑</div><div class="emotion-value" id="smileVal">0.00</div><div class="emotion-bar-small"><div class="emotion-bar-small-fill" id="smileBar"></div></div></div>
+                <div class="emotion-item"><div class="emotion-icon">😉</div><div class="emotion-name">眨眼</div><div class="emotion-value" id="blinkVal">0.00</div><div class="emotion-bar-small"><div class="emotion-bar-small-fill" id="blinkBar"></div></div></div>
+                <div class="emotion-item"><div class="emotion-icon">😮</div><div class="emotion-name">张嘴</div><div class="emotion-value" id="jawVal">0.00</div><div class="emotion-bar-small"><div class="emotion-bar-small-fill" id="jawBar"></div></div></div>
+                <div class="emotion-item"><div class="emotion-icon">🤨</div><div class="emotion-name">挑眉</div><div class="emotion-value" id="browVal">0.00</div><div class="emotion-bar-small"><div class="emotion-bar-small-fill" id="browBar"></div></div></div>
+            </div>
+        </div>
+
+        <div class="debug-panel">📱 手机版 · 自然圆润五官 · 明显眼黑 · 怒眉聚拢 · 哀嘴拉长下移 · 虚拟原型无装饰</div>
+        <div class="footer">🎓 毕业设计 | 手机端优化版 | 空格键启动/停止</div>
+    </div>
+
+    <script type="importmap">
+        { "imports": { "three": "https://unpkg.com/three@0.128.0/build/three.module.js", "three/addons/": "https://unpkg.com/three@0.128.0/examples/jsm/" } }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js">
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
+
+        // ─── DOM引用 ──────────────────────────────
+        const video = document.getElementById('video');
+        const canvas3d = document.getElementById('threeCanvas');
+        const toggleBtn = document.getElementById('toggleBtn');
+        const intensitySlider = document.getElementById('intensity');
+        const intensityVal = document.getElementById('intensityVal');
+        const headStrengthSlider = document.getElementById('headStrength');
+        const headStrVal = document.getElementById('headStrVal');
+        const presetSelect = document.getElementById('presetSelect');
+        const randomAvatarBtn = document.getElementById('randomAvatarBtn');
+        const recalibrateBtn = document.getElementById('recalibrateBtn');
+        const resetDefaultBtn = document.getElementById('resetDefaultBtn');
+        const tweakPanelHeader = document.getElementById('tweakPanelHeader');
+        const tweakPanel = document.getElementById('tweakPanel');
+        const labelContainer = document.getElementById('labelContainer');
+
+        // ─── 状态变量 ──────────────────────────────
+        let intensity = 1.0,
+            headStrength = 1.6,
+            running = false,
+            cameraHelper = null,
+            faceMesh = null,
+            lastTime = performance.now(),
+            isProcessing = false; // 防止移动端帧堆积
+        let expressions = { smile: 0, blink: 0, browRaise: 0, jawOpen: 0 };
+        let headPose = { pitch: 0, yaw: 0 };
+        let smooth = { smile: 0, blink: 0, browRaise: 0, jawOpen: 0, pitch: 0, yaw: 0 };
+        let emotionScores = { joy: 0, anger: 0, sadness: 0, happy: 0 };
+        let emotionSmooth = { joy: 0, anger: 0, sadness: 0, happy: 0 };
+        let dominantEmotion = 'neutral';
+        let currentMainExpression = { name: '无显著表情', icon: '😐', strength: 0 };
+
+        const avatarParams = {
+            eyeSize: 1.0,
+            eyeSpacing: 1.0,
+            mouthWidth: 1.0,
+            mouthHeight: 0.8,
+            browThickness: 1.0,
+            faceWidth: 1.0,
+            faceHeight: 1.0,
+            presetName: 'prototype'
+        };
+
+        const presets = {
+            prototype: { eyeSize: 1.0, eyeSpacing: 1.0, mouthWidth: 1.0, mouthHeight: 0.8, browThickness: 1.0,
+                faceWidth: 1.0, faceHeight: 1.0, skin: '#ffccaa', decoration: 'none' },
+            yeti: { eyeSize: 1.0, eyeSpacing: 1.0, mouthWidth: 0.9, mouthHeight: 0.8, browThickness: 1.2, faceWidth: 1.1,
+                faceHeight: 0.98, skin: '#dceeff', decoration: 'yeti' },
+            bolt: { eyeSize: 0.95, eyeSpacing: 1.05, mouthWidth: 1.0, mouthHeight: 0.85, browThickness: 1.0, faceWidth: 0.95,
+                faceHeight: 1.02, skin: '#8B5A2B', decoration: 'bolt' },
+            dave: { eyeSize: 0.9, eyeSpacing: 1.0, mouthWidth: 0.95, mouthHeight: 0.85, browThickness: 1.0, faceWidth: 1.02,
+                faceHeight: 1.0, skin: '#ffccaa', decoration: 'dave' },
+            wukong: { eyeSize: 0.9, eyeSpacing: 0.95, mouthWidth: 0.85, mouthHeight: 0.75, browThickness: 1.0, faceWidth: 0.92,
+                faceHeight: 1.05, skin: '#f5c67a', decoration: 'wukong' },
+            sailormoon: { eyeSize: 1.5, eyeSpacing: 0.92, mouthWidth: 0.9, mouthHeight: 0.75, browThickness: 0.7,
+                faceWidth: 1.12, faceHeight: 0.9, skin: '#ffe0d0', decoration: 'sailormoon' },
+            autobot: { eyeSize: 0.8, eyeSpacing: 1.1, mouthWidth: 0.75, mouthHeight: 0.6, browThickness: 0.7, faceWidth: 0.9,
+                faceHeight: 1.05, skin: '#cc3333', decoration: 'autobot' },
+            detective: { eyeSize: 0.95, eyeSpacing: 1.02, mouthWidth: 0.9, mouthHeight: 0.8, browThickness: 1.1,
+                faceWidth: 0.98, faceHeight: 1.02, skin: '#f5d0b0', decoration: 'detective' },
+            kaitou: { eyeSize: 1.0, eyeSpacing: 1.0, mouthWidth: 0.9, mouthHeight: 0.8, browThickness: 1.0, faceWidth: 0.98,
+                faceHeight: 1.0, skin: '#ffe8d0', decoration: 'kaitou' }
+        };
+
+        let calibration = {
+            leftCornerY: 0,
+            rightCornerY: 0,
+            basePitch: 0,
+            baseYaw: 0,
+            leftEAR: 0,
+            rightEAR: 0,
+            leftBrowEyeY: 0,
+            rightBrowEyeY: 0,
+            mouthCornerY: 0,
+            innerBrowY: 0,
+            innerBrowDist: 0,
+            midBrowY: 0,
+            isCalibrated: false,
+            frameCount: 0,
+            _leftCornerYSum: 0,
+            _rightCornerYSum: 0,
+            _leftEARSum: 0,
+            _rightEARSum: 0,
+            _leftBrowEyeYSum: 0,
+            _rightBrowEyeYSum: 0,
+            _mouthCornerYSum: 0,
+            _innerBrowYSum: 0,
+            _innerBrowDistSum: 0,
+            _midBrowYSum: 0,
+            _basePitchSum: 0,
+            _baseYawSum: 0
+        };
+
+        function resetCalibration() {
+            calibration = {
+                leftCornerY: 0,
+                rightCornerY: 0,
+                basePitch: 0,
+                baseYaw: 0,
+                leftEAR: 0,
+                rightEAR: 0,
+                leftBrowEyeY: 0,
+                rightBrowEyeY: 0,
+                mouthCornerY: 0,
+                innerBrowY: 0,
+                innerBrowDist: 0,
+                midBrowY: 0,
+                isCalibrated: false,
+                frameCount: 0,
+                _leftCornerYSum: 0,
+                _rightCornerYSum: 0,
+                _leftEARSum: 0,
+                _rightEARSum: 0,
+                _leftBrowEyeYSum: 0,
+                _rightBrowEyeYSum: 0,
+                _mouthCornerYSum: 0,
+                _innerBrowYSum: 0,
+                _innerBrowDistSum: 0,
+                _midBrowYSum: 0,
+                _basePitchSum: 0,
+                _baseYawSum: 0
+            };
+            smooth = { smile: 0, blink: 0, browRaise: 0, jawOpen: 0, pitch: 0, yaw: 0 };
+            expressions = { smile: 0, blink: 0, browRaise: 0, jawOpen: 0 };
+            headPose = { pitch: 0, yaw: 0 };
+            emotionScores = { joy: 0, anger: 0, sadness: 0, happy: 0 };
+            emotionSmooth = { joy: 0, anger: 0, sadness: 0, happy: 0 };
+            dominantEmotion = 'neutral';
+            avatarGroup.rotation.set(0, 0, 0);
+            updateUI();
+            updateEmotionUI();
+            driveAvatar();
+            updateStatusUI(running, false);
+        }
+
+        // ─── 辅助函数 ──────────────────────────────
+        function computeEAR(lm, idx) {
+            const [p1, p2, p3, p4] = idx.map(i => lm[i]);
+            return Math.abs(p1.y - p2.y) / Math.max(1e-6, Math.abs(p3.x - p4.x));
+        }
+
+        function smoothVal(name, v, f = 0.22) {
+            smooth[name] ??= 0;
+            if (v < 0.02) smooth[name] *= 0.3;
+            else smooth[name] = f * v + (1 - f) * smooth[name];
+            return Math.min(1, Math.max(0, smooth[name]));
+        }
+
+        function smoothAng(name, v, f = 0.25) {
+            smooth[name] ??= v;
+            smooth[name] = f * v + (1 - f) * smooth[name];
+            return smooth[name];
+        }
+
+        function smoothEmo(name, v, f = 0.15) {
+            emotionSmooth[name] ??= 0;
+            if (v < 0.02) emotionSmooth[name] *= 0.25;
+            else emotionSmooth[name] = f * v + (1 - f) * emotionSmooth[name];
+            return Math.min(1, Math.max(0, emotionSmooth[name]));
+        }
+
+        // ─── Three.js 初始化（移动端优化：降低几何体分段数） ──
+        const renderer = new THREE.WebGLRenderer({ canvas: canvas3d, alpha: false, antialias: true,
+            powerPreference: 'high-performance' });
+        renderer.setClearColor(0x0f172a);
+        // 移动端限制像素比，减少GPU负担
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        const scene = new THREE.Scene();
+        const camera3d = new THREE.PerspectiveCamera(45, 1, 0.1, 1000);
+        camera3d.position.set(0, 0, 2);
+        camera3d.lookAt(0, 0, 0);
+        scene.add(new THREE.AmbientLight(0x606080));
+        const light = new THREE.DirectionalLight(0xffffff, 1.2);
+        light.position.set(1, 2, 2);
+        scene.add(light);
+        const backLight = new THREE.DirectionalLight(0x446688, 0.8);
+        backLight.position.set(-0.5, 0.5, -1);
+        scene.add(backLight);
+
+        const labelRenderer = new CSS2DRenderer();
+        labelRenderer.setSize(1, 1);
+        labelRenderer.domElement.style.position = 'absolute';
+        labelRenderer.domElement.style.top = '0';
+        labelRenderer.domElement.style.left = '0';
+        labelRenderer.domElement.style.pointerEvents = 'none';
+        labelRenderer.domElement.style.zIndex = '10';
+        labelContainer.appendChild(labelRenderer.domElement);
+
+        const avatarGroup = new THREE.Group();
+        scene.add(avatarGroup);
+        const headGroup = new THREE.Group();
+        avatarGroup.add(headGroup);
+
+        // 头部（移动端降低分段：128→64）
+        const headGeo = new THREE.SphereGeometry(0.45, 64, 64);
+        const headMat = new THREE.MeshStandardMaterial({ color: '#ffccaa', roughness: 0.65, metalness: 0.05 });
+        const head = new THREE.Mesh(headGeo, headMat);
+        head.scale.set(0.95, 1, 0.9);
+        headGroup.add(head);
+
+        // 眼白（移动端降低分段：64→32）
+        const eyeWhiteGeo = new THREE.SphereGeometry(0.08, 32, 32);
+        const eyeWhiteMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.2 });
+        const leftEyeWhite = new THREE.Mesh(eyeWhiteGeo, eyeWhiteMat);
+        leftEyeWhite.position.set(-0.2, 0.16, 0.4);
+        const rightEyeWhite = new THREE.Mesh(eyeWhiteGeo, eyeWhiteMat);
+        rightEyeWhite.position.set(0.2, 0.16, 0.4);
+        headGroup.add(leftEyeWhite, rightEyeWhite);
+
+        // 虹膜（移动端降低分段：32→16）
+        const irisGeo = new THREE.SphereGeometry(0.07, 16, 16);
+        const irisMat = new THREE.MeshStandardMaterial({ color: 0x331100, roughness: 0.3, metalness: 0.1 });
+        const leftIris = new THREE.Mesh(irisGeo, irisMat);
+        leftIris.position.set(-0.2, 0.16, 0.47);
+        const rightIris = new THREE.Mesh(irisGeo, irisMat);
+        rightIris.position.set(0.2, 0.16, 0.47);
+        headGroup.add(leftIris, rightIris);
+
+        // 高光
+        const highlightGeo = new THREE.SphereGeometry(0.025, 8, 8);
+        const highlightMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.1 });
+        const leftHighlight = new THREE.Mesh(highlightGeo, highlightMat);
+        leftHighlight.position.set(-0.22, 0.18, 0.52);
+        const rightHighlight = new THREE.Mesh(highlightGeo, highlightMat);
+        rightHighlight.position.set(0.18, 0.18, 0.52);
+        headGroup.add(leftHighlight, rightHighlight);
+
+        // 嘴巴（移动端降低分段：64→32）
+        const mouthGeo = new THREE.TorusGeometry(0.16, 0.035, 16, 32);
+        const mouthMat = new THREE.MeshStandardMaterial({ color: 0xcc6666, roughness: 0.5 });
+        const mouth = new THREE.Mesh(mouthGeo, mouthMat);
+        mouth.position.set(0, -0.12, 0.48);
+        headGroup.add(mouth);
+
+        // 眉毛（移动端降低分段：12→8）
+        const browGeo = new THREE.CylinderGeometry(0.04, 0.04, 0.22, 8);
+        const browMat = new THREE.MeshStandardMaterial({ color: 0x553322, roughness: 0.7 });
+        const leftBrow = new THREE.Mesh(browGeo, browMat);
+        leftBrow.rotation.z = Math.PI / 2;
+        leftBrow.rotation.x = -0.15;
+        leftBrow.position.set(-0.27, 0.32, 0.42);
+        const rightBrow = new THREE.Mesh(browGeo, browMat);
+        rightBrow.rotation.z = Math.PI / 2;
+        rightBrow.rotation.x = -0.15;
+        rightBrow.position.set(0.27, 0.32, 0.42);
+        headGroup.add(leftBrow, rightBrow);
+
+        // 装饰物组
+        const decoGroup = new THREE.Group();
+        headGroup.add(decoGroup);
+
+        // 雪怪毛绒帽（移动端降低分段）
+        const yetiHat = new THREE.Mesh(new THREE.SphereGeometry(0.25, 16, 16), new THREE.MeshStandardMaterial({ color: 0xffffff,
+            roughness: 0.9 }));
+        yetiHat.scale.set(1.1, 0.6, 1.1);
+        yetiHat.position.set(0, 0.52, 0.1);
+        yetiHat.visible = false;
+        decoGroup.add(yetiHat);
+
+        // 博尔特闪电
+        const boltGeo = new THREE.ConeGeometry(0.06, 0.2, 6);
+        boltGeo.rotateZ(Math.PI);
+        const boltLeft = new THREE.Mesh(boltGeo, new THREE.MeshStandardMaterial({ color: 0xffdd00, emissive: new THREE.Color(
+                0x442200) }));
+        boltLeft.position.set(-0.35, 0.45, 0.25);
+        boltLeft.rotation.z = 0.3;
+        boltLeft.visible = false;
+        const boltRight = boltLeft.clone();
+        boltRight.position.set(0.35, 0.45, 0.25);
+        boltRight.rotation.z = -0.3;
+        boltRight.visible = false;
+        decoGroup.add(boltLeft, boltRight);
+
+        // 戴夫锅盖帽+胡子
+        const pot = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.27, 0.08, 16), new THREE.MeshStandardMaterial({ color: 0x888888,
+            roughness: 0.4, metalness: 0.6 }));
+        pot.position.set(0, 0.48, 0.1);
+        pot.visible = false;
+        const potKnob = new THREE.Mesh(new THREE.SphereGeometry(0.06, 8, 8), new THREE.MeshStandardMaterial({ color: 0x666666,
+            roughness: 0.4 }));
+        potKnob.position.set(0, 0.53, 0.1);
+        potKnob.visible = false;
+        const beardGeoD = new THREE.CylinderGeometry(0.02, 0.12, 0.15, 6);
+        const beard = new THREE.Mesh(beardGeoD, new THREE.MeshStandardMaterial({ color: 0xaaaaaa, roughness: 0.7 }));
+        beard.position.set(0, -0.24, 0.65);
+        beard.visible = false;
+        decoGroup.add(pot, potKnob, beard);
+
+        // 大圣紧箍+长羽
+        const headband = new THREE.Mesh(new THREE.TorusGeometry(0.46, 0.04, 8, 32), new THREE.MeshStandardMaterial({ color: 0xffaa00,
+            roughness: 0.3, metalness: 0.8 }));
+        headband.rotation.x = Math.PI / 2;
+        headband.position.set(0, 0.2, 0.25);
+        headband.visible = false;
+        const featherGeo = new THREE.CylinderGeometry(0.02, 0.06, 0.35, 6);
+        const featherLeft = new THREE.Mesh(featherGeo, new THREE.MeshStandardMaterial({ color: 0xff4444, roughness: 0.5 }));
+        featherLeft.position.set(-0.25, 0.55, 0.1);
+        featherLeft.rotation.z = 0.4;
+        featherLeft.visible = false;
+        const featherRight = featherLeft.clone();
+        featherRight.position.set(0.25, 0.55, 0.1);
+        featherRight.rotation.z = -0.4;
+        featherRight.visible = false;
+        decoGroup.add(headband, featherLeft, featherRight);
+
+        // 美少女头饰
+        const moonGeo = new THREE.TorusGeometry(0.12, 0.04, 8, 8);
+        const moon = new THREE.Mesh(moonGeo, new THREE.MeshStandardMaterial({ color: 0xffdd00, roughness: 0.2,
+        metalness: 0.3 }));
+        moon.position.set(0, 0.48, 0.28);
+        moon.rotation.x = 0.3;
+        moon.visible = false;
+        const bunLeft = new THREE.Mesh(new THREE.SphereGeometry(0.1, 8, 8), new THREE.MeshStandardMaterial({ color: 0xffcc88,
+            roughness: 0.5 }));
+        bunLeft.position.set(-0.3, 0.5, 0.15);
+        bunLeft.visible = false;
+        const bunRight = bunLeft.clone();
+        bunRight.position.set(0.3, 0.5, 0.15);
+        bunRight.visible = false;
+        decoGroup.add(moon, bunLeft, bunRight);
+
+        // 汽车人天线与标志
+        const antGeo = new THREE.CylinderGeometry(0.03, 0.03, 0.25, 6);
+        const antLeft = new THREE.Mesh(antGeo, new THREE.MeshStandardMaterial({ color: 0xcccccc, metalness: 0.9 }));
+        antLeft.position.set(-0.3, 0.55, 0.15);
+        antLeft.rotation.z = 0.3;
+        antLeft.visible = false;
+        const antRight = antLeft.clone();
+        antRight.position.set(0.3, 0.55, 0.15);
+        antRight.rotation.z = -0.3;
+        antRight.visible = false;
+        const autobotSymbol = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.04, 0.08), new THREE.MeshStandardMaterial({ color: 0xff3333,
+            metalness: 0.5 }));
+        autobotSymbol.position.set(0, 0.52, 0.25);
+        autobotSymbol.visible = false;
+        decoGroup.add(antLeft, antRight, autobotSymbol);
+
+        // 英伦侦探
+        const hatBase = new THREE.Mesh(new THREE.CylinderGeometry(0.26, 0.28, 0.1, 16), new THREE.MeshStandardMaterial({ color: 0x8B5A2B,
+            roughness: 0.6 }));
+        hatBase.position.set(0, 0.42, 0.1);
+        hatBase.visible = false;
+        const hatTop = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.22, 0.15, 16), new THREE.MeshStandardMaterial({ color: 0x8B5A2B,
+            roughness: 0.6 }));
+        hatTop.position.set(0, 0.52, 0.1);
+        hatTop.visible = false;
+        const hatBrim = new THREE.Mesh(new THREE.TorusGeometry(0.28, 0.04, 8, 32), new THREE.MeshStandardMaterial({ color: 0x5C3A21,
+            roughness: 0.6 }));
+        hatBrim.rotation.x = Math.PI / 2;
+        hatBrim.position.set(0, 0.47, 0.1);
+        hatBrim.visible = false;
+        const pipeStem = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.3, 6), new THREE.MeshStandardMaterial({ color: 0x4A2F1D }));
+        pipeStem.rotation.z = 0.2;
+        pipeStem.position.set(0.18, -0.15, 0.55);
+        pipeStem.visible = false;
+        const pipeBowl = new THREE.Mesh(new THREE.SphereGeometry(0.06, 8, 8), new THREE.MeshStandardMaterial({ color: 0x6B4226 }));
+        pipeBowl.position.set(0.28, -0.1, 0.55);
+        pipeBowl.visible = false;
+        decoGroup.add(hatBase, hatTop, hatBrim, pipeStem, pipeBowl);
+
+        // 怪盗基德
+        const whiteHatBase = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.26, 0.12, 16), new THREE.MeshStandardMaterial({ color: 0xffffff,
+            roughness: 0.3 }));
+        whiteHatBase.position.set(0, 0.44, 0.1);
+        whiteHatBase.visible = false;
+        const whiteHatTop = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.2, 0.18, 16), new THREE.MeshStandardMaterial({ color: 0xffffff,
+            roughness: 0.3 }));
+        whiteHatTop.position.set(0, 0.55, 0.1);
+        whiteHatTop.visible = false;
+        const whiteHatBrim = new THREE.Mesh(new THREE.TorusGeometry(0.27, 0.04, 8, 32), new THREE.MeshStandardMaterial({ color: 0xffffff,
+            roughness: 0.3 }));
+        whiteHatBrim.rotation.x = Math.PI / 2;
+        whiteHatBrim.position.set(0, 0.5, 0.1);
+        whiteHatBrim.visible = false;
+        const monocle = new THREE.Mesh(new THREE.TorusGeometry(0.09, 0.015, 4, 16), new THREE.MeshStandardMaterial({ color: 0xffdd00,
+            roughness: 0.2, metalness: 0.8 }));
+        monocle.position.set(-0.2, 0.16, 0.55);
+        monocle.visible = false;
+        decoGroup.add(whiteHatBase, whiteHatTop, whiteHatBrim, monocle);
+
+        function setDecorationVisible(type) {
+            yetiHat.visible = (type === 'yeti');
+            boltLeft.visible = boltRight.visible = (type === 'bolt');
+            pot.visible = potKnob.visible = beard.visible = (type === 'dave');
+            headband.visible = featherLeft.visible = featherRight.visible = (type === 'wukong');
+            moon.visible = bunLeft.visible = bunRight.visible = (type === 'sailormoon');
+            antLeft.visible = antRight.visible = autobotSymbol.visible = (type === 'autobot');
+            hatBase.visible = hatTop.visible = hatBrim.visible = pipeStem.visible = pipeBowl.visible = (type === 'detective');
+            whiteHatBase.visible = whiteHatTop.visible = whiteHatBrim.visible = monocle.visible = (type === 'kaitou');
+        }
+
+        // 浮动标签
+        const labelDiv = document.createElement('div');
+        Object.assign(labelDiv.style, {
+            backgroundColor: 'rgba(0,0,0,0.7)',
+            color: '#00ff88',
+            padding: '4px 10px',
+            borderRadius: '40px',
+            fontSize: '13px',
+            fontWeight: 'bold',
+            border: '1px solid #00ff88',
+            backdropFilter: 'blur(8px)',
+            whiteSpace: 'nowrap',
+            letterSpacing: '0.5px'
+        });
+        const labelObj = new CSS2DObject(labelDiv);
+        labelObj.position.set(0, 0.85, 0);
+        avatarGroup.add(labelObj);
+
+        function updateFloatingLabel() {
+            let icon = '😐',
+                name = '中性';
+            if (dominantEmotion !== 'neutral') {
+                const m = { joy: ['😊', '喜'], anger: ['😠', '怒'], sadness: ['😢', '哀'], happy: ['😄', '乐'] };
+                if (m[dominantEmotion]) { icon = m[dominantEmotion][0];
+                    name = m[dominantEmotion][1]; }
+            }
+            const expr = currentMainExpression.name !== '无显著表情' ? ` · ${currentMainExpression.icon} ${currentMainExpression.name}` :
+                '';
+            labelDiv.innerHTML = `${icon} ${name}${expr}`;
+        }
+
+        // ─── 预设应用 ──────────────────────────────
+        function applyPreset(name) {
+            const p = presets[name];
+            if (!p) return;
+            avatarParams.eyeSize = p.eyeSize;
+            avatarParams.eyeSpacing = p.eyeSpacing;
+            avatarParams.mouthWidth = p.mouthWidth;
+            avatarParams.mouthHeight = p.mouthHeight;
+            avatarParams.browThickness = p.browThickness;
+            avatarParams.faceWidth = p.faceWidth;
+            avatarParams.faceHeight = p.faceHeight;
+            avatarParams.presetName = name;
+            head.material.color.set(p.skin);
+            setDecorationVisible(p.decoration);
+            syncSliders();
+            updateAvatarAppearance();
+            driveAvatar();
+            presetSelect.value = name;
+        }
+
+        function syncSliders() {
+            document.getElementById('eyeSize').value = avatarParams.eyeSize;
+            document.getElementById('eyeSpacing').value = avatarParams.eyeSpacing;
+            document.getElementById('mouthWidth').value = avatarParams.mouthWidth;
+            document.getElementById('mouthHeight').value = avatarParams.mouthHeight;
+            document.getElementById('browThickness').value = avatarParams.browThickness;
+            document.getElementById('faceWidth').value = avatarParams.faceWidth;
+            document.getElementById('faceHeight').value = avatarParams.faceHeight;
+            updateAllCustomUI();
+        }
+
+        function updateAllCustomUI() {
+            document.getElementById('eyeSizeVal').innerText = avatarParams.eyeSize.toFixed(2);
+            document.getElementById('eyeSpacingVal').innerText = avatarParams.eyeSpacing.toFixed(2);
+            document.getElementById('mouthWidthVal').innerText = avatarParams.mouthWidth.toFixed(2);
+            document.getElementById('mouthHeightVal').innerText = avatarParams.mouthHeight.toFixed(2);
+            document.getElementById('browThicknessVal').innerText = avatarParams.browThickness.toFixed(2);
+            document.getElementById('faceWidthVal').innerText = avatarParams.faceWidth.toFixed(2);
+            document.getElementById('faceHeightVal').innerText = avatarParams.faceHeight.toFixed(2);
+        }
+
+        function updateAvatarAppearance() {
+            const p = avatarParams;
+            head.scale.set(0.95 * p.faceWidth, 1 * p.faceHeight, 0.9 * p.faceWidth);
+            leftEyeWhite.scale.setScalar(p.eyeSize);
+            rightEyeWhite.scale.setScalar(p.eyeSize);
+            leftEyeWhite.position.x = -0.2 * p.eyeSpacing;
+            rightEyeWhite.position.x = 0.2 * p.eyeSpacing;
+            leftIris.scale.setScalar(p.eyeSize * 0.85);
+            rightIris.scale.setScalar(p.eyeSize * 0.85);
+            leftIris.position.x = -0.2 * p.eyeSpacing;
+            rightIris.position.x = 0.2 * p.eyeSpacing;
+            leftHighlight.position.x = -0.22 * p.eyeSpacing;
+            rightHighlight.position.x = 0.18 * p.eyeSpacing;
+            leftBrow.scale.y = p.browThickness;
+            rightBrow.scale.y = p.browThickness;
+            leftBrow.position.x = -0.27 * p.eyeSpacing;
+            rightBrow.position.x = 0.27 * p.eyeSpacing;
+            mouth.scale.set(p.mouthWidth, p.mouthHeight, 1);
+            updateFloatingLabel();
+        }
+
+        function driveAvatar() {
+            const p = avatarParams;
+            head.scale.set(0.95 * p.faceWidth, 1 * p.faceHeight, 0.9 * p.faceWidth);
+            leftEyeWhite.scale.setScalar(p.eyeSize);
+            rightEyeWhite.scale.setScalar(p.eyeSize);
+            leftEyeWhite.position.set(-0.2 * p.eyeSpacing, 0.16, 0.4);
+            rightEyeWhite.position.set(0.2 * p.eyeSpacing, 0.16, 0.4);
+            leftIris.scale.setScalar(p.eyeSize * 0.85);
+            rightIris.scale.setScalar(p.eyeSize * 0.85);
+            leftIris.position.set(-0.2 * p.eyeSpacing, 0.16, 0.47);
+            rightIris.position.set(0.2 * p.eyeSpacing, 0.16, 0.47);
+            leftHighlight.position.set(-0.22 * p.eyeSpacing, 0.18, 0.52);
+            rightHighlight.position.set(0.18 * p.eyeSpacing, 0.18, 0.52);
+            leftBrow.scale.y = p.browThickness;
+            rightBrow.scale.y = p.browThickness;
+            leftBrow.position.set(-0.27 * p.eyeSpacing, 0.32, 0.42);
+            rightBrow.position.set(0.27 * p.eyeSpacing, 0.32, 0.42);
+            mouth.scale.set(p.mouthWidth, p.mouthHeight, 1);
+            mouth.position.y = -0.12;
+
+            const mul = intensity;
+            if (expressions.smile > 0.02) {
+                mouth.scale.x = p.mouthWidth * (1 + expressions.smile * mul * 1.4);
+                mouth.scale.z = 1 - expressions.smile * mul * 0.1;
+                mouth.position.y = -0.12 - expressions.smile * mul * 0.05;
+            }
+            if (expressions.jawOpen > 0.02) {
+                mouth.scale.y = p.mouthHeight * (1 + expressions.jawOpen * mul * 1.2);
+                mouth.position.y = -0.12 + expressions.jawOpen * mul * 0.06;
+            }
+            if (expressions.browRaise > 0.02) {
+                const mv = expressions.browRaise * mul * 0.6;
+                leftBrow.position.y = 0.32 + mv;
+                rightBrow.position.y = 0.32 + mv;
+            }
+
+            // 怒：眉毛聚拢并下移
+            if (emotionScores.anger > 0.08 && expressions.browRaise < 0.03) {
+                const angerFactor = emotionScores.anger * mul;
+                const browTargetY = Math.max(0.20, 0.32 - angerFactor * 0.35);
+                leftBrow.position.y = browTargetY;
+                rightBrow.position.y = browTargetY;
+                const spacingShrink = 0.08 * angerFactor * p.eyeSpacing;
+                leftBrow.position.x = -0.27 * p.eyeSpacing + spacingShrink;
+                rightBrow.position.x = 0.27 * p.eyeSpacing - spacingShrink;
+                if (expressions.smile < 0.03) {
+                    mouth.scale.set(p.mouthWidth * (1 - angerFactor * 0.2), p.mouthHeight * (1 - angerFactor * 0.15), 1);
+                    mouth.position.y = -0.12 + angerFactor * 0.05;
+                }
+            }
+
+            // 哀：嘴巴拉长并向下移动
+            if (emotionScores.sadness > 0.08 && expressions.smile < 0.03 && emotionScores.anger < 0.08) {
+                const sadnessFactor = emotionScores.sadness * mul;
+                mouth.scale.y = p.mouthHeight * (1 + sadnessFactor * 0.6);
+                mouth.position.y = -0.12 + sadnessFactor * 0.18;
+                const sadBrowLift = sadnessFactor * 0.2;
+                leftBrow.position.y = 0.32 + sadBrowLift;
+                rightBrow.position.y = 0.32 + sadBrowLift;
+            }
+
+            if (expressions.blink > 0.02) {
+                const bs = Math.max(0.02, 1 - expressions.blink * mul * 1.2);
+                leftEyeWhite.scale.y = p.eyeSize * bs;
+                rightEyeWhite.scale.y = p.eyeSize * bs;
+                leftIris.scale.y = p.eyeSize * 0.85 * bs;
+                rightIris.scale.y = p.eyeSize * 0.85 * bs;
+                leftHighlight.scale.y = bs;
+                rightHighlight.scale.y = bs;
+            }
+            if (calibration.isCalibrated) {
+                avatarGroup.rotation.x = smoothAng('pitch', (headPose.pitch - calibration.basePitch) * headStrength);
+                avatarGroup.rotation.y = smoothAng('yaw', (headPose.yaw - calibration.baseYaw) * headStrength);
+            }
+        }
+
+        function resetExpressionsAndEmotions() {
+            let need = false;
+            for (let k of ['smile', 'blink', 'browRaise', 'jawOpen'])
+                if (expressions[k] !== 0) { expressions[k] = 0;
+                    smooth[k] = 0;
+                    need = true; }
+            for (let k of ['joy', 'anger', 'sadness', 'happy'])
+                if (emotionScores[k] !== 0) { emotionScores[k] = 0;
+                    emotionSmooth[k] = 0;
+                    need = true; }
+            if (need) { dominantEmotion = 'neutral';
+                updateUI();
+                updateEmotionUI();
+                driveAvatar(); }
+        }
+
+        function extract(landmarks) {
+            if (!landmarks) return;
+            const lm = landmarks[0];
+            headPose.pitch = (lm[1].y - (lm[33].y + lm[263].y) / 2) * 3.0;
+            headPose.yaw = ((lm[33].x + lm[263].x) / 2 - lm[1].x) * 3.0;
+            const lc = lm[61].y,
+                rc = lm[291].y;
+            const smileRaw = calibration.isCalibrated ? Math.max(0, ((calibration.leftCornerY + calibration.rightCornerY) / 2 -
+                (lc + rc) / 2) * 700) : 0;
+            const jawRaw = calibration.isCalibrated ? Math.max(0, (lm[14].y - lm[13].y - 0.005) * 520) : 0;
+            const leftEAR = computeEAR(lm, [159, 145, 33, 133]),
+                rightEAR = computeEAR(lm, [386, 374, 263, 362]);
+            let blinkRaw = 0;
+            if (calibration.isCalibrated) {
+                const avg = (calibration.leftEAR + calibration.rightEAR) / 2;
+                const cur = (leftEAR + rightEAR) / 2;
+                blinkRaw = Math.min(1, Math.max(0, (avg - cur) / avg) * 2.0);
+            }
+            const leftBrowY = (lm[52].y + lm[46].y) / 2,
+                rightBrowY = (lm[282].y + lm[276].y) / 2;
+            let browRaw = 0;
+            if (calibration.isCalibrated) {
+                const off = ((leftBrowY - lm[159].y) + (rightBrowY - lm[386].y)) / 2;
+                browRaw = Math.min(1, Math.max(0, ((calibration.leftBrowEyeY + calibration.rightBrowEyeY) / 2 - off) * 22));
+            }
+            expressions.smile = smoothVal('smile', smileRaw);
+            expressions.blink = smoothVal('blink', blinkRaw);
+            expressions.browRaise = smoothVal('browRaise', browRaw);
+            expressions.jawOpen = smoothVal('jawOpen', jawRaw);
+            if (calibration.isCalibrated && Math.sqrt(expressions.smile ** 2 + expressions.browRaise ** 2 + expressions.jawOpen **
+                    2 + expressions.blink ** 2) < 0.035) {
+                resetExpressionsAndEmotions();
+                return;
+            }
+            computeEmotionScores(lm);
+            driveAvatar();
+            updateUI();
+            updateEmotionUI();
+        }
+
+        function computeEmotionScores(lm) {
+            if (!calibration.isCalibrated) { emotionScores = { joy: 0, anger: 0, sadness: 0, happy: 0 }; return; }
+            const joyRaw = expressions.smile * 0.85;
+            const happyRaw = expressions.smile * 0.35 + expressions.jawOpen * 0.65;
+            const furrow = Math.max(0, (calibration.innerBrowDist - Math.abs(lm[282].x - lm[52].x)) * 2800);
+            const lower = Math.max(0, ((lm[52].y + lm[46].y + lm[282].y + lm[276].y) / 4 - calibration.midBrowY) * 2000);
+            const angerRaw = (lower * 0.5 + furrow * 0.5) * (1 - expressions.smile * 1.2);
+            const innerUp = Math.max(0, (calibration.innerBrowY - (lm[52].y + lm[282].y) / 2) * 2200);
+            const mouthDown = Math.max(0, ((lm[61].y + lm[291].y) / 2 - calibration.mouthCornerY) * 2000);
+            const sadnessRaw = (innerUp * 0.5 + mouthDown * 0.5) * (1 - expressions.smile * 1.3);
+            emotionScores.joy = smoothEmo('joy', Math.min(1, joyRaw));
+            emotionScores.happy = smoothEmo('happy', Math.min(1, happyRaw));
+            emotionScores.anger = smoothEmo('anger', Math.min(1, angerRaw));
+            emotionScores.sadness = smoothEmo('sadness', Math.min(1, sadnessRaw));
+            const pos = Math.max(emotionScores.joy, emotionScores.happy);
+            if (pos > 0.2) { emotionScores.anger *= Math.max(0, 1 - pos * 2);
+                emotionScores.sadness *= Math.max(0, 1 - pos * 2); }
+            const neg = Math.max(emotionScores.anger, emotionScores.sadness);
+            if (neg > 0.2) { emotionScores.joy *= Math.max(0, 1 - neg * 1.8);
+                emotionScores.happy *= Math.max(0, 1 - neg * 1.8); }
+        }
+
+        function updateUI() {
+            document.getElementById('smileVal').innerText = expressions.smile.toFixed(2);
+            document.getElementById('blinkVal').innerText = expressions.blink.toFixed(2);
+            document.getElementById('jawVal').innerText = expressions.jawOpen.toFixed(2);
+            document.getElementById('browVal').innerText = expressions.browRaise.toFixed(2);
+            document.getElementById('smileBar').style.width = (expressions.smile * 100) + '%';
+            document.getElementById('blinkBar').style.width = (expressions.blink * 100) + '%';
+            document.getElementById('jawBar').style.width = (expressions.jawOpen * 100) + '%';
+            document.getElementById('browBar').style.width = (expressions.browRaise * 100) + '%';
+        }
+
+        function updateEmotionUI() {
+            const j = emotionScores.joy,
+                a = emotionScores.anger,
+                s = emotionScores.sadness,
+                h = emotionScores.happy;
+            document.getElementById('joyBarFill').style.width = (j * 100) + '%';
+            document.getElementById('angerBarFill').style.width = (a * 100) + '%';
+            document.getElementById('sadnessBarFill').style.width = (s * 100) + '%';
+            document.getElementById('happyBarFill').style.width = (h * 100) + '%';
+            document.getElementById('joyScore').innerText = Math.round(j * 100) + '%';
+            document.getElementById('angerScore').innerText = Math.round(a * 100) + '%';
+            document.getElementById('sadnessScore').innerText = Math.round(s * 100) + '%';
+            document.getElementById('happyScore').innerText = Math.round(h * 100) + '%';
+            const scores = [{ name: 'joy', label: '喜', icon: '😊', score: j }, { name: 'anger', label: '怒', icon: '😠',
+                score: a }, { name: 'sadness', label: '哀', icon: '😢', score: s }, { name: 'happy', label: '乐',
+                icon: '😄', score: h }];
+            scores.sort((x, y) => y.score - x.score);
+            const top = scores[0];
+            if (top.score < 0.08) {
+                dominantEmotion = 'neutral';
+                document.getElementById('emotionMainIcon').innerText = '😐';
+                document.getElementById('emotionMainName').innerText = '中性';
+                document.getElementById('emotionMainConfidence').innerText = '无显著情绪';
+                document.getElementById('mainEmotionDisplay').innerHTML = '😐 中性';
+                document.getElementById('mainEmotionBarFill').style.width = '5%';
+            } else {
+                dominantEmotion = top.name;
+                document.getElementById('emotionMainIcon').innerText = top.icon;
+                document.getElementById('emotionMainName').innerText = top.label;
+                document.getElementById('emotionMainConfidence').innerText = '置信度 ' + Math.round(top.score * 100) + '%';
+                document.getElementById('mainEmotionDisplay').innerHTML = top.icon + ' ' + top.label;
+                document.getElementById('mainEmotionBarFill').style.width = (top.score * 100) + '%';
+            }
+            const items = [{ name: '眨眼', icon: '😉', val: expressions.blink }, { name: '微笑', icon: '😊', val: expressions
+                    .smile }, { name: '挑眉', icon: '🤨', val: expressions.browRaise }, { name: '张嘴', icon: '😮',
+                    val: expressions.jawOpen
+                }];
+            let best = items.reduce((a, b) => b.val > a.val ? b : a, { name: '无显著表情', icon: '😐', val: 0 });
+            if (best.val < 0.06) currentMainExpression = { name: '无显著表情', icon: '😐', strength: 0 };
+            else currentMainExpression = { name: best.name, icon: best.icon, strength: best.val };
+            document.getElementById('mainExpressionText').innerText = currentMainExpression.name;
+            document.getElementById('mainExpressionIcon').innerHTML = currentMainExpression.icon;
+            updateFloatingLabel();
+        }
+
+        function updateStats(hasFace) {
+            const now = performance.now(),
+                lat = Math.round(now - lastTime);
+            lastTime = now;
+            document.getElementById('latency').innerText = lat;
+            document.getElementById('latencyBar').style.width = Math.min(100, lat) + '%';
+            let txt = '🔍 等待',
+                pct = 10;
+            if (running) {
+                if (calibration.isCalibrated && hasFace) { txt = '✅ 正常';
+                    pct = 100; } else if (hasFace) { txt = '⚙️ 校准';
+                    pct = 50; } else { txt = '⚠️ 无人脸';
+                    pct = 30; }
+            }
+            document.getElementById('detectStatus').innerText = txt;
+            document.getElementById('detectBar').style.width = pct + '%';
+        }
+
+        function updateStatusUI(run, face = false) {
+            const cd = document.getElementById('cameraStatus'),
+                ct = document.getElementById('cameraStatusText');
+            const ad = document.getElementById('avatarStatus'),
+                at = document.getElementById('avatarStatusText');
+            if (run) {
+                cd.classList.add('active');
+                ct.innerText = '工作中';
+                if (face && calibration.isCalibrated) { ad.classList.add('active');
+                    at.innerText = '同步中'; } else { ad.classList.remove('active');
+                    at.innerText = face ? '校准中' : '等待人脸'; }
+            } else { cd.classList.remove('active');
+                ct.innerText = '未启动';
+                ad.classList.remove('active');
+                at.innerText = '等待中'; }
+            if (run) {
+                toggleBtn.classList.add('running');
+                toggleBtn.innerHTML = '⏹ 停止';
+            } else {
+                toggleBtn.classList.remove('running');
+                toggleBtn.innerHTML = '▶ 启动';
+            }
+        }
+
+        function onResults(results) {
+            if (!running) return;
+            if (isProcessing) return; // 防止帧堆积
+            isProcessing = true;
+            try {
+                const hasFace = results.multiFaceLandmarks?.length > 0;
+                updateStatusUI(true, hasFace);
+                updateStats(hasFace);
+                if (!hasFace) { resetExpressionsAndEmotions();
+                    headPose = { pitch: 0, yaw: 0 };
+                    smooth.pitch = 0;
+                    smooth.yaw = 0;
+                    avatarGroup.rotation.set(0, 0, 0);
+                    driveAvatar();
+                    updateUI();
+                    updateEmotionUI(); return; }
+                if (!calibration.isCalibrated) {
+                    calibration.frameCount++;
+                    const lm = results.multiFaceLandmarks[0];
+                    calibration._leftCornerYSum += lm[61].y;
+                    calibration._rightCornerYSum += lm[291].y;
+                    calibration._leftEARSum += computeEAR(lm, [159, 145, 33, 133]);
+                    calibration._rightEARSum += computeEAR(lm, [386, 374, 263, 362]);
+                    const lby = (lm[52].y + lm[46].y) / 2,
+                        rby = (lm[282].y + lm[276].y) / 2;
+                    calibration._leftBrowEyeYSum += (lby - lm[159].y);
+                    calibration._rightBrowEyeYSum += (rby - lm[386].y);
+                    calibration._mouthCornerYSum += (lm[61].y + lm[291].y) / 2;
+                    calibration._innerBrowYSum += (lm[52].y + lm[282].y) / 2;
+                    calibration._innerBrowDistSum += Math.abs(lm[282].x - lm[52].x);
+                    calibration._midBrowYSum += (lm[52].y + lm[46].y + lm[282].y + lm[276].y) / 4;
+                    calibration._basePitchSum += headPose.pitch;
+                    calibration._baseYawSum += headPose.yaw;
+                    if (calibration.frameCount >= 40) {
+                        const n = calibration.frameCount;
+                        calibration.leftCornerY = calibration._leftCornerYSum / n;
+                        calibration.rightCornerY = calibration._rightCornerYSum / n;
+                        calibration.leftEAR = calibration._leftEARSum / n;
+                        calibration.rightEAR = calibration._rightEARSum / n;
+                        calibration.leftBrowEyeY = calibration._leftBrowEyeYSum / n;
+                        calibration.rightBrowEyeY = calibration._rightBrowEyeYSum / n;
+                        calibration.mouthCornerY = calibration._mouthCornerYSum / n;
+                        calibration.innerBrowY = calibration._innerBrowYSum / n;
+                        calibration.innerBrowDist = calibration._innerBrowDistSum / n;
+                        calibration.midBrowY = calibration._midBrowYSum / n;
+                        calibration.basePitch = calibration._basePitchSum / n;
+                        calibration.baseYaw = calibration._baseYawSum / n;
+                        calibration.isCalibrated = true;
+                    }
+                    driveAvatar();
+                    return;
+                }
+                extract(results.multiFaceLandmarks);
+            } finally {
+                isProcessing = false;
+            }
+        }
+
+        async function initMediaPipe() {
+            faceMesh = new FaceMesh({ locateFile: f => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${f}` });
+            faceMesh.setOptions({ maxNumFaces: 1, refineLandmarks: true, minDetectionConfidence: 0.5,
+                minTrackingConfidence: 0.5 });
+            faceMesh.onResults(onResults);
+        }
+
+        async function startSystem() {
+            resetCalibration();
+            // 移动端使用ideal分辨率，更好适配不同设备
+            const stream = await navigator.mediaDevices.getUserMedia({
+                video: {
+                    width: { ideal: 360 },
+                    height: { ideal: 360 },
+                    facingMode: "user"
+                }
+            });
+            video.srcObject = stream;
+            await video.play();
+            cameraHelper = new Camera(video, {
+                onFrame: async () => {
+                    if (running && !isProcessing) await faceMesh.send({ image: video });
+                },
+                width: 360,
+                height: 360
+            });
+            await cameraHelper.start();
+            running = true;
+            lastTime = performance.now();
+            updateStatusUI(true, false);
+            updateUI();
+            updateEmotionUI();
+            updateAvatarAppearance();
+        }
+
+        function stopSystem() {
+            running = false;
+            isProcessing = false;
+            if (cameraHelper) cameraHelper.stop();
+            if (video.srcObject) video.srcObject.getTracks().forEach(t => t.stop());
+            calibration.isCalibrated = false;
+            resetExpressionsAndEmotions();
+            avatarGroup.rotation.set(0, 0, 0);
+            driveAvatar();
+            updateStatusUI(false, false);
+            updateStats(false);
+            updateUI();
+            updateEmotionUI();
+        }
+
+        function toggleSystem() {
+            if (running) {
+                stopSystem();
+            } else {
+                if (!faceMesh) {
+                    initMediaPipe().then(() => startSystem());
+                } else {
+                    startSystem();
+                }
+            }
+        }
+
+        function resetToDefault() {
+            applyPreset('prototype');
+            avatarParams.presetName = 'prototype';
+            syncSliders();
+            updateAvatarAppearance();
+            driveAvatar();
+            presetSelect.value = 'prototype';
+        }
+
+        // ─── 事件绑定 ──────────────────────────────
+        toggleBtn.addEventListener('click', toggleSystem);
+        // 移动端也支持touchend（防止click延迟）
+        toggleBtn.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            toggleSystem();
+        });
+
+        intensitySlider.addEventListener('input', e => {
+            intensity = +e.target.value;
+            intensityVal.innerText = intensity.toFixed(2) + 'x';
+        });
+        headStrengthSlider.addEventListener('input', e => {
+            headStrength = +e.target.value;
+            headStrVal.innerText = headStrength.toFixed(2) + 'x';
+        });
+
+        presetSelect.addEventListener('change', () => {
+            applyPreset(presetSelect.value);
+        });
+
+        randomAvatarBtn.addEventListener('click', () => {
+            const keys = Object.keys(presets);
+            const randomKey = keys[Math.floor(Math.random() * keys.length)];
+            applyPreset(randomKey);
+        });
+
+        recalibrateBtn.addEventListener('click', () => {
+            if (running) {
+                resetCalibration();
+                recalibrateBtn.style.boxShadow = '0 0 20px rgba(0,255,136,0.6)';
+                setTimeout(() => { recalibrateBtn.style.boxShadow = ''; }, 400);
+            }
+        });
+
+        resetDefaultBtn.addEventListener('click', () => {
+            resetToDefault();
+            resetDefaultBtn.style.boxShadow = '0 0 20px rgba(0,180,255,0.6)';
+            setTimeout(() => { resetDefaultBtn.style.boxShadow = ''; }, 400);
+        });
+
+        // 五官微调滑块
+        ['eyeSize', 'eyeSpacing', 'mouthWidth', 'mouthHeight', 'browThickness', 'faceWidth', 'faceHeight'].forEach(id => {
+            const el = document.getElementById(id);
+            el.addEventListener('input', e => {
+                avatarParams[id] = parseFloat(e.target.value);
+                avatarParams.presetName = 'custom';
+                updateAllCustomUI();
+                updateAvatarAppearance();
+                driveAvatar();
+                presetSelect.value = '';
+            });
+        });
+
+        // 折叠面板
+        tweakPanelHeader.addEventListener('click', () => {
+            tweakPanel.classList.toggle('open');
+        });
+
+        // 键盘快捷键（桌面端兼容）
+        document.addEventListener('keydown', e => {
+            if (e.key === ' ' && e.target === document.body) {
+                e.preventDefault();
+                toggleSystem();
+            }
+            if (e.key === 'r' && e.ctrlKey) {
+                e.preventDefault();
+                if (running) resetCalibration();
+            }
+        });
+
+        // 页面不可见时暂停处理，节省电量
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden && running) {
+                isProcessing = true; // 暂停处理
+            } else if (!document.hidden && running) {
+                isProcessing = false;
+            }
+        });
+
+        // ─── 动画循环 ──────────────────────────────
+        function animate() {
+            const w = canvas3d.clientWidth,
+                h = canvas3d.clientHeight;
+            if (w > 0 && h > 0) {
+                renderer.setSize(w, h);
+                camera3d.aspect = w / Math.max(h, 1);
+                camera3d.updateProjectionMatrix();
+                renderer.render(scene, camera3d);
+                labelRenderer.setSize(w, h);
+                labelRenderer.render(scene, camera3d);
+            }
+            requestAnimationFrame(animate);
+        }
+
+        // ─── 初始化 ──────────────────────────────
+        initMediaPipe();
+        applyPreset('prototype');
+        presetSelect.value = 'prototype';
+        animate();
+        updateFloatingLabel();
+        updateStatusUI(false, false);
+
+        console.log('📱 表情驱动虚拟形象 - 手机端优化版已就绪');
+        console.log('   🎬 点击"启动"按钮或按空格键开始');
+        console.log('   🎨 下拉菜单选择预设风格');
+        console.log('   🔄 "校准"按钮重新进行面部校准');
+        console.log('   ↺ "默认"按钮恢复所有参数');
+        console.log('   🔧 五官微调面板可折叠');
+        console.log('   ⚡ 移动端性能优化：低几何体分段、帧堆积防护');
+    </script>
+</body>
+</html>
